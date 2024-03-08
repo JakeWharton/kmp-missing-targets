@@ -1,0 +1,109 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
+
+buildscript {
+  dependencies {
+    classpath libs.kotlin.gradlePlugin
+    classpath libs.kotlin.serializationPlugin
+    classpath libs.dokkaPlugin
+    classpath libs.gradleMavenPublishPlugin
+    classpath libs.spotlessPlugin
+  }
+  repositories {
+    mavenCentral()
+  }
+}
+
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.vanniktech.maven.publish'
+apply plugin: 'com.diffplug.spotless'
+
+gradlePlugin {
+  plugins {
+    kmpMissingTargets {
+      id = "com.jakewharton.kmp-missing-targets"
+      displayName = "KMP Missing Targets"
+      description = "Gradle plugin which identifies multiplatform targets you should be supporting"
+      implementationClass = "com.jakewharton.kmpmt.MissingTargetsPlugin"
+    }
+  }
+}
+
+tasks.named("validatePlugins") {
+  enableStricterValidation = true
+}
+
+dependencies {
+  compileOnly gradleApi()
+  implementation libs.kotlin.gradlePlugin
+  implementation libs.kotlinx.serialization
+
+  testImplementation libs.junit
+  testImplementation libs.assertk
+  testImplementation libs.testParameterInjector
+  testImplementation gradleTestKit()
+}
+
+kotlin {
+  explicitApi()
+
+  target {
+    compilations.configureEach {
+      compilerOptions.options.jvmTarget = JvmTarget.JVM_1_8
+      compilerOptions.options.freeCompilerArgs.add("-Xjvm-default=all")
+      // Ensure compatibility with old Gradle versions. Keep in sync with plugin.kt.
+      compilerOptions.options.apiVersion.set(KotlinVersion.KOTLIN_1_8)
+    }
+  }
+}
+
+tasks.withType(JavaCompile).configureEach { task ->
+  task.sourceCompatibility = '1.8'
+  task.targetCompatibility = '1.8'
+}
+
+tasks.named("test") {
+  dependsOn(':publishAllPublicationsToTestingRepository')
+  systemProperty('kmpmtVersion', VERSION_NAME)
+
+  testLogging {
+    if (System.getenv("CI") == "true") {
+      events = ["failed", "skipped", "passed"]
+    }
+    exceptionFormat "full"
+  }
+
+  // Required to test configuration cache in tests when using withDebug()
+  // https://github.com/gradle/gradle/issues/22765#issuecomment-1339427241
+  jvmArgs(
+    "--add-opens",
+    "java.base/java.util=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.lang.invoke=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.net=ALL-UNNAMED",
+  )
+}
+
+publishing {
+  repositories {
+    maven {
+      name = "testing"
+      url = "${rootProject.projectDir}/build/localMaven"
+    }
+  }
+}
+
+spotless {
+  kotlin {
+    target('**/*.kt')
+    ktlint(libs.ktlint.get().version).editorConfigOverride([
+      'ktlint_standard_filename': 'disabled',
+    ])
+  }
+}

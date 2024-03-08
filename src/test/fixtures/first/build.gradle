@@ -1,0 +1,42 @@
+buildscript {
+  dependencies {
+    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+    classpath libs.kotlin.gradlePlugin
+  }
+
+  repositories {
+    maven {
+      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+    }
+    mavenCentral()
+  }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.jakewharton.kmp-missing-targets'
+
+kotlin {
+  js().nodejs()
+  jvm()
+  linuxX64()
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0')
+      }
+    }
+    jvmAndLinuxMain {
+      dependsOn(commonMain)
+      dependencies {
+        implementation('org.jetbrains.compose.runtime:runtime:1.6.0')
+      }
+    }
+    jvmMain {
+      dependsOn(jvmAndLinuxMain)
+    }
+    linuxX64Main {
+      dependsOn(jvmAndLinuxMain)
+    }
+  }
+}
