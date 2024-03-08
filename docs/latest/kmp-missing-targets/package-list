@@ -1,0 +1,11 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:com.jakewharton.kmpmt////PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/index.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsPlugin///PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-plugin/index.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsPlugin/MissingTargetsPlugin/#/PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-plugin/-missing-targets-plugin.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsPlugin/apply/#org.gradle.api.Project/PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-plugin/apply.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsTask///PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-task/index.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsTask/MissingTargetsTask/#/PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-task/-missing-targets-task.html
+$dokka.location:com.jakewharton.kmpmt/MissingTargetsTask/execute/#/PointingToDeclaration/kmp-missing-targets/com.jakewharton.kmpmt/-missing-targets-task/execute.html
+com.jakewharton.kmpmt
+
