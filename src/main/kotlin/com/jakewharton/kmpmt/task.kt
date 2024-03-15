@@ -19,6 +19,7 @@ package com.jakewharton.kmpmt
 import java.io.File
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
@@ -35,7 +36,6 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.resolve.ArtifactNotFoundException
 
 @CacheableTask
 public abstract class MissingTargetsTask : DefaultTask() {
@@ -232,7 +232,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			val coordinates = (it.id.componentIdentifier as ModuleComponentIdentifier).toDependencyCoordinates()
 			try {
 				DependencyCoordinatesWithModuleFile(coordinates, it.file)
-			} catch (e: ArtifactNotFoundException) {
+			} catch (e: GradleException) {
 				null
 			}
 		}.distinctBy { it.dependencyCoordinates }
