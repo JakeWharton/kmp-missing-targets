@@ -41,7 +41,8 @@ public class MissingTargetsPlugin : Plugin<Project> {
 			it.description = "Check for missing targets based on the supported targets of common dependencies"
 			it.group = VERIFICATION_GROUP
 
-			it.sourceSet.set("commonMain")
+			it.projectName.set(project.name)
+			it.sourceSetName.set("commonMain")
 
 			val reporting = project.extensions.getByType(ReportingExtension::class.java)
 			it.outputDir.convention(reporting.baseDirectory.dir("kmp-missing-targets"))
@@ -61,7 +62,7 @@ public class MissingTargetsPlugin : Plugin<Project> {
 			} else {
 				// TODO Name is the wrong thing to use here since it can be customized.
 				missingTargetsTask.configure {
-					it.targets.add(target.name)
+					it.sourceSetTargets.add(target.name)
 				}
 			}
 		}

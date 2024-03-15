@@ -43,10 +43,13 @@ public abstract class MissingTargetsTask : DefaultTask() {
 	internal abstract val coordinateToModuleJson: MapProperty<DependencyCoordinates, String>
 
 	@get:Input
-	internal abstract val targets: SetProperty<String>
+	internal abstract val projectName: Property<String>
 
 	@get:Input
-	internal abstract val sourceSet: Property<String>
+	internal abstract val sourceSetName: Property<String>
+
+	@get:Input
+	internal abstract val sourceSetTargets: SetProperty<String>
 
 	@get:OutputDirectory
 	internal abstract val outputDir: DirectoryProperty
@@ -56,11 +59,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val logger = Logging.getLogger(MissingTargetsTask::class.java)!!
 		val jsonFormat = Json { ignoreUnknownKeys = true }
 
-		val sourceSet = sourceSet.get()
-		val outputFile = outputDir.get().file("$sourceSet.md").asFile
-		outputFile.parentFile.mkdirs()
-
-		val targets = targets.get().toSortedSet()
+		val currentTargets = sourceSetTargets.get().toSortedSet()
 
 		val coordinateToTargets = coordinateToModuleJson.get()
 			.filterKeys { coordinate ->
@@ -87,19 +86,25 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			.filterValues { it.isNotEmpty() }
 			.toSortedMap()
 
+		val targetsToMissingCoordinates = coordinateToTargets.values
+			.fold(emptySet(), Set<String>::intersect)
+			.associateWith { seenTarget ->
+				coordinateToTargets.filterValues { seenTarget in it }.keys
+			}
+
 		// TODO This orEmpty is wrong. If you have no dependencies the result should be all targets, not none.
 		//  We probably need to retain the kotlin-stdlib and instead synthesize all possible targets here.
 		val possibleTargets = coordinateToTargets.values
 			.reduceOrNull(Set<String>::intersect)
 			.orEmpty()
-		val missingTargets = possibleTargets - targets
+		val missingTargets = possibleTargets - currentTargets
 
 		if (logger.isDebugEnabled) {
 			logger.debug(
 				buildString {
-					append(sourceSet)
+					append(sourceSetName)
 					append(": ")
-					appendLine(targets)
+					appendLine(currentTargets)
 
 					if (coordinateToTargets.isNotEmpty()) {
 						appendLine()
@@ -115,26 +120,73 @@ public abstract class MissingTargetsTask : DefaultTask() {
 					appendLine(possibleTargets)
 					append("missing: ")
 					appendLine(missingTargets)
+					append("blocked: ")
+					appendLine(targetsToMissingCoordinates.keys)
 				},
 			)
 		}
 
+		val projectName = projectName.get()
+		val sourceSetName = sourceSetName.get()
+
+		val outputFile = outputDir.get().file("$sourceSetName.md").asFile
+		outputFile.parentFile.mkdirs()
+
 		outputFile.writeText(
 			buildString {
-				appendLine("# Project")
-				for (target in targets) {
+				append("# Project '")
+				append(projectName)
+				append("' `")
+				append(sourceSetName)
+				appendLine("`")
+				appendLine()
+				appendLine("## Current targets")
+				for (target in currentTargets) {
+					append(" - ")
+					appendLine(target)
+				}
+				appendLine()
+				appendLine("## Missing targets")
+				for (target in missingTargets) {
 					append(" - ")
 					appendLine(target)
 				}
 
-				for ((coordinate, coordinateTargets) in coordinateToTargets) {
+				appendLine()
+				appendLine()
+				appendLine("# Unsupported dependencies by target")
+				if (targetsToMissingCoordinates.isEmpty()) {
 					appendLine()
-					append("# `")
-					append(coordinate)
-					appendLine('`')
-					for (target in coordinateTargets) {
-						append(" - ")
-						appendLine(target)
+					appendLine("None!")
+				} else {
+					for ((target, coordinates) in targetsToMissingCoordinates) {
+						appendLine()
+						append("## `")
+						append(target)
+						appendLine("` missing")
+						for (coordinate in coordinates) {
+							append(" - ")
+							appendLine(coordinate)
+						}
+					}
+				}
+
+				appendLine()
+				appendLine()
+				appendLine("# Supported targets by dependency")
+				if (coordinateToTargets.isEmpty()) {
+					appendLine()
+					appendLine("None!")
+				} else {
+					for ((coordinate, coordinateTargets) in coordinateToTargets) {
+						appendLine()
+						append("## `")
+						append(coordinate)
+						appendLine('`')
+						for (target in coordinateTargets) {
+							append(" - ")
+							appendLine(target)
+						}
 					}
 				}
 			},
