@@ -89,10 +89,10 @@ public abstract class MissingTargetsTask : DefaultTask() {
 
 		// TODO This orEmpty is wrong. If you have no dependencies the result should be all targets, not none.
 		//  We probably need to retain the kotlin-stdlib and instead synthesize all possible targets here.
-		val union = coordinateToTargets.values
+		val possibleTargets = coordinateToTargets.values
 			.reduceOrNull(Set<String>::intersect)
 			.orEmpty()
-		val missing = union - targets
+		val missingTargets = possibleTargets - targets
 
 		if (logger.isDebugEnabled) {
 			logger.debug(
@@ -111,10 +111,10 @@ public abstract class MissingTargetsTask : DefaultTask() {
 						appendLine()
 					}
 
-					append("union: ")
-					appendLine(union)
+					append("possible: ")
+					appendLine(possibleTargets)
 					append("missing: ")
-					appendLine(missing)
+					appendLine(missingTargets)
 				},
 			)
 		}
@@ -140,10 +140,10 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			},
 		)
 
-		check(missing.isEmpty()) {
+		check(missingTargets.isEmpty()) {
 			buildString {
 				appendLine("Missing targets detected!")
-				for (target in missing) {
+				for (target in missingTargets) {
 					append(" - ")
 					appendLine(target)
 				}
