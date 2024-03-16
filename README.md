@@ -46,10 +46,12 @@ If another dependency lacked support for `wasmJs`, the plugin would say silent a
 
 Want to know which dependencies are blocking you from supporting a particular target? Check the generated build report.
 
-> ### `wasmJs` missing:
+> ### `wasmJs` unsupported by:
 > - `org.jetbrains.compose.runtime:runtime:1.5.12`
 
 Now you know which dependencies to chase when your users come asking.
+
+[Full example report](src/test/fixtures/first/expected/build/reports/kmp-missing-targets/commonMain.md).
 
 
 ## License
