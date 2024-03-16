@@ -83,14 +83,15 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				}
 			}
 			// TODO Can we get rid of this through some other filtering on attributes?
-			.filterValues { it.isNotEmpty() }
+			.filterValues(Set<*>::isNotEmpty)
 			.toSortedMap()
 
 		val targetsToMissingCoordinates = coordinateToTargets.values
-			.fold(emptySet(), Set<String>::intersect)
+			.fold(emptySet(), Set<String>::union)
 			.associateWith { seenTarget ->
-				coordinateToTargets.filterValues { seenTarget in it }.keys
+				coordinateToTargets.filterValues { seenTarget !in it }.keys
 			}
+			.filterValues(Set<*>::isNotEmpty)
 
 		// TODO This orEmpty is wrong. If you have no dependencies the result should be all targets, not none.
 		//  We probably need to retain the kotlin-stdlib and instead synthesize all possible targets here.
@@ -138,18 +139,27 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				append(projectName)
 				append("' `")
 				append(sourceSetName)
-				appendLine("`")
+				appendLine('`')
 				appendLine()
 				appendLine("## Current targets")
 				for (target in currentTargets) {
-					append(" - ")
-					appendLine(target)
+					append("- `")
+					append(target)
+					appendLine('`')
 				}
 				appendLine()
-				appendLine("## Missing targets")
+				appendLine("## Available targets")
 				for (target in missingTargets) {
-					append(" - ")
-					appendLine(target)
+					append("- `")
+					append(target)
+					appendLine('`')
+				}
+				appendLine()
+				appendLine("## Unavailable targets")
+				for (target in targetsToMissingCoordinates.keys) {
+					append("- `")
+					append(target)
+					appendLine('`')
 				}
 
 				appendLine()
@@ -163,10 +173,11 @@ public abstract class MissingTargetsTask : DefaultTask() {
 						appendLine()
 						append("## `")
 						append(target)
-						appendLine("` missing")
+						appendLine("` unsupported by")
 						for (coordinate in coordinates) {
-							append(" - ")
-							appendLine(coordinate)
+							append("- `")
+							append(coordinate)
+							appendLine('`')
 						}
 					}
 				}
@@ -184,8 +195,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 						append(coordinate)
 						appendLine('`')
 						for (target in coordinateTargets) {
-							append(" - ")
-							appendLine(target)
+							append("- `")
+							append(target)
+							appendLine('`')
 						}
 					}
 				}
@@ -196,8 +208,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			buildString {
 				appendLine("Missing targets detected!")
 				for (target in missingTargets) {
-					append(" - ")
-					appendLine(target)
+					append("- `")
+					append(target)
+					appendLine('`')
 				}
 			}
 		}
