@@ -36,6 +36,8 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.konan.target.KonanTarget.Companion.deprecatedTargets
+import org.jetbrains.kotlin.konan.target.KonanTarget.Companion.predefinedTargets
 
 @CacheableTask
 public abstract class MissingTargetsTask : DefaultTask() {
@@ -62,24 +64,18 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val currentTargets = sourceSetTargets.get().toSortedSet()
 
 		val coordinateToTargets = coordinateToModuleJson.get()
-			.filterKeys { coordinate ->
-				// Remove the kotlin-stdlib for two reasons:
-				// - It always has every possible target.
-				// - Its native targets are not included in its metadata.
-				coordinate.group != "org.jetbrains.kotlin" || coordinate.artifact != "kotlin-stdlib"
-			}
 			.mapValues { (coordinates, json) ->
 				try {
 					jsonFormat.decodeFromString(GradleModuleMetadata.serializer(), json)
 				} catch (e: Exception) {
-					throw IllegalStateException("Unable to parse module metadata for $coordinates")
+					throw IllegalStateException("Unable to parse module metadata for $coordinates", e)
 				}
 			}
 			.mapValues { (coordinates, metadata) ->
 				try {
-					extractEffectiveTargets(metadata).toSortedSet()
+					extractEffectiveTargets(coordinates, metadata).toSortedSet()
 				} catch (e: Exception) {
-					throw IllegalStateException("Unable to extract targets for $coordinates")
+					throw IllegalStateException("Unable to extract targets for $coordinates", e)
 				}
 			}
 			// TODO Can we get rid of this through some other filtering on attributes?
@@ -216,35 +212,51 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		}
 	}
 
-	private fun extractEffectiveTargets(metadata: GradleModuleMetadata) = buildSet {
+	private fun extractEffectiveTargets(coordinates: DependencyCoordinates, metadata: GradleModuleMetadata) = buildSet {
 		for (variant in metadata.variants) {
 			if (variant.attributes.gradleDocsType != null) continue
 			if (variant.attributes.gradleUsage != "kotlin-api" && variant.attributes.gradleUsage != "java-api") continue
-			this += when (variant.attributes.kotlinPlatformType) {
+			when (variant.attributes.kotlinPlatformType) {
 				"common", null -> continue
 				"wasm" -> {
 					// TODO check legacy wasm support behavior here
-					"wasm" + variant.attributes.kotlinWasmTarget?.replaceFirstChar(Char::uppercase).orEmpty()
+					add("wasm" + variant.attributes.kotlinWasmTarget?.replaceFirstChar(Char::uppercase).orEmpty())
 				}
 
 				"native" -> {
-					requireNotNull(variant.attributes.kotlinNativeTarget) {
-						"Variant '${variant.name}' has no Kotlin native target despite native platform type"
-					}
-						.split('_')
-						.withIndex()
-						.joinToString("") { (index, value) ->
-							if (index == 0) {
-								value
-							} else {
-								value.replaceFirstChar(Char::uppercase)
-							}
+					if (coordinates.group == "org.jetbrains.kotlin" && coordinates.artifact == "kotlin-stdlib") {
+						// The stdlib does not have proper native targets in its module metadata because it's managed
+						// by the Kotlin Gradle plugin / Kotlin native compiler. Instead, ask the Kotlin Gradle plugin
+						// for its set of supported, non-deprecated targets.
+						// TODO This is the wrong place to filter these. We want to show this having deprecated targets
+						//  and even display them as available but indicate they're deprecated.
+						val allTargets = predefinedTargets.filter { it.value !in deprecatedTargets }.keys
+						addAll(allTargets.map { it.nativeTargetNameToCamelCase() })
+					} else {
+						val target = requireNotNull(variant.attributes.kotlinNativeTarget) {
+							"Variant '${variant.name}' has no Kotlin native target despite native platform type"
 						}
+						add(target.nativeTargetNameToCamelCase())
+					}
 				}
 
-				else -> variant.attributes.kotlinPlatformType
+				else -> {
+					add(variant.attributes.kotlinPlatformType)
+				}
 			}
 		}
+	}
+
+	private fun String.nativeTargetNameToCamelCase(): String {
+		return split('_')
+			.withIndex()
+			.joinToString("") { (index, value) ->
+				if (index == 0) {
+					value
+				} else {
+					value.replaceFirstChar(Char::uppercase)
+				}
+			}
 	}
 
 	internal fun configurationToCheck(configuration: Provider<Configuration>) {
