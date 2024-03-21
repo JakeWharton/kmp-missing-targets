@@ -1,0 +1,20 @@
+buildscript {
+  dependencies {
+    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+    classpath libs.kotlin.gradlePlugin
+  }
+
+  repositories {
+    maven {
+      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+    }
+    mavenCentral()
+  }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.jakewharton.kmp-missing-targets'
+
+kotlin {
+  jvm()
+}
