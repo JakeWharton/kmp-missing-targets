@@ -91,11 +91,10 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			}
 			.filterValues(Set<*>::isNotEmpty)
 
-		// TODO This orEmpty is wrong. If you have no dependencies the result should be all targets, not none.
-		//  We probably need to retain the kotlin-stdlib and instead synthesize all possible targets here.
 		val possibleTargets = coordinateToTargets.values
 			.reduceOrNull(Set<String>::intersect)
-			.orEmpty()
+			?: throw IllegalStateException("Project has zero dependencies (not even the stdlib)")
+
 		val missingTargets = possibleTargets - currentTargets
 
 		if (logger.isDebugEnabled) {

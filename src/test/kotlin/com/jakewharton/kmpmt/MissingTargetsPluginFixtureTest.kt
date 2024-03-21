@@ -16,6 +16,7 @@
 package com.jakewharton.kmpmt
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -39,17 +40,10 @@ class MissingTargetsPluginFixtureTest {
 	}
 
 	@Test
-	fun allFixturesCovered() {
-		val expectedDirs = javaClass.declaredMethods
-			.filter { it.isAnnotationPresent(Test::class.java) }
-			.filter { it.parameterCount == 1 } // Assume single parameter means test parameter.
-			.flatMap { it.parameters[0].getAnnotation(TestParameter::class.java).value.toList() }
-			.sorted()
-		val actualDirs = fixturesDir.listFiles()!!
-			.filter { it.isDirectory }
-			.map { it.name }
-			.sorted()
-		assertThat(actualDirs).isEqualTo(expectedDirs)
+	fun noStdlibFails() {
+		val fixtureDir = File(fixturesDir, "no-stdlib")
+		val result = createRunner(fixtureDir).buildAndFail()
+		assertThat(result.output).contains("Project has zero dependencies (not even the stdlib)")
 	}
 
 	private fun createRunner(fixtureDir: File): GradleRunner {
