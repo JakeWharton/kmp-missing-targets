@@ -64,6 +64,10 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val currentTargets = sourceSetTargets.get().toSortedSet()
 
 		val coordinateToTargets = coordinateToModuleJson.get()
+			.filterKeys { coordinate ->
+				// The common stdlib has empty module metadata and is a dependency of the regular stdlib.
+				coordinate.group != "org.jetbrains.kotlin" || coordinate.artifact != "kotlin-stdlib-common"
+			}
 			.mapValues { (coordinates, json) ->
 				try {
 					jsonFormat.decodeFromString(GradleModuleMetadata.serializer(), json)
@@ -78,8 +82,6 @@ public abstract class MissingTargetsTask : DefaultTask() {
 					throw IllegalStateException("Unable to extract targets for $coordinates", e)
 				}
 			}
-			// TODO Can we get rid of this through some other filtering on attributes?
-			.filterValues(Set<*>::isNotEmpty)
 			.toSortedMap()
 
 		val targetsToMissingCoordinates = coordinateToTargets.values
