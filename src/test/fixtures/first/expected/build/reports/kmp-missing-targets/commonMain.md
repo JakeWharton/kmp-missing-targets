@@ -39,7 +39,7 @@
 
 # Supported targets by dependency
 
-## `org.jetbrains.kotlin:kotlin-stdlib:1.9.24`
+## `org.jetbrains.kotlin:kotlin-stdlib:2.0.0`
 - `androidArm32`
 - `androidArm64`
 - `androidX64`
