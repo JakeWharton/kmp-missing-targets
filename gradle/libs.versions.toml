@@ -9,7 +9,7 @@ dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.20"
 spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
 gradleMavenPublishPlugin = "com.vanniktech:gradle-maven-publish-plugin:0.28.0"
 
-kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0"
 
 junit = "junit:junit:4.13.2"
 assertk = "com.willowtreeapps.assertk:assertk:0.28.1"
