@@ -12,7 +12,8 @@ internal data class DependencyCoordinates(
 	val group: String,
 	val artifact: String,
 	val version: String,
-) : Serializable, Comparable<DependencyCoordinates> {
+) : Serializable,
+	Comparable<DependencyCoordinates> {
 	override fun toString() = "$group:$artifact:$version"
 	fun moduleCoordinate() = "$this@module"
 	override fun compareTo(other: DependencyCoordinates) = comparator.compare(this, other)
