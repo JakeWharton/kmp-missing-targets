@@ -7,7 +7,7 @@ kotlin-serializationPlugin = { module = "org.jetbrains.kotlin:kotlin-serializati
 
 dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.20"
 spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
-gradleMavenPublishPlugin = "com.vanniktech:gradle-maven-publish-plugin:0.28.0"
+gradleMavenPublishPlugin = "com.vanniktech:gradle-maven-publish-plugin:0.29.0"
 
 kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0"
 
