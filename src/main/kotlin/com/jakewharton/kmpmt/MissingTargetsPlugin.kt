@@ -32,11 +32,6 @@ public class MissingTargetsPlugin : Plugin<Project> {
 	private fun Project.configureKmp() {
 		val kotlin = extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-		// TODO HMPP source sets:
-		//  Get a list of all source sets
-		//  Remove all target-specific source sets
-		//  Create one task for each of these configurations
-
 		val missingTargetsExtension = MissingTargetsExtensionImpl()
 		extensions.add(
 			MissingTargetsExtension::class.java,
@@ -49,11 +44,10 @@ public class MissingTargetsPlugin : Plugin<Project> {
 			it.group = VERIFICATION_GROUP
 
 			it.projectName.set(project.name)
-			it.sourceSetName.set("common")
 			it.ignoredTargetToReasons.set(provider(missingTargetsExtension::ignoredTargets))
 
 			val reporting = project.extensions.getByType(ReportingExtension::class.java)
-			it.outputDir.convention(reporting.baseDirectory.dir("kmp-missing-targets"))
+			it.outputFile.convention(reporting.baseDirectory.file("kmp-missing-targets.md"))
 		}
 		tasks.named(CHECK_TASK_NAME).configure {
 			it.dependsOn(missingTargetsTask)
