@@ -17,6 +17,8 @@
 package com.jakewharton.kmpmt
 
 import java.io.File
+import java.util.SortedMap
+import java.util.SortedSet
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -61,9 +63,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val logger = Logging.getLogger(MissingTargetsTask::class.java)!!
 		val jsonFormat = Json { ignoreUnknownKeys = true }
 
-		val currentTargets = sourceSetTargets.get().toSortedSet()
+		val currentTargets: SortedSet<String> = sourceSetTargets.get().toSortedSet()
 
-		val dependenciesToTargets = dependenciesToModuleJson.get()
+		val dependenciesToTargets: SortedMap<VersionedDependency, SortedSet<String>> = dependenciesToModuleJson.get()
 			.filterKeys { (coordinate) ->
 				// The common stdlib has empty module metadata and is a dependency of the regular stdlib.
 				coordinate.group != "org.jetbrains.kotlin" || coordinate.artifact != "kotlin-stdlib-common"
@@ -84,18 +86,20 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			}
 			.toSortedMap()
 
-		val targetsToMissingCoordinates = dependenciesToTargets.values
+		val targetsToMissingCoordinates: SortedMap<String, Set<VersionedDependency>> = dependenciesToTargets.values
 			.fold(emptySet(), Set<String>::union)
 			.associateWith { seenTarget ->
 				dependenciesToTargets.filterValues { seenTarget !in it }.keys
 			}
 			.filterValues(Set<*>::isNotEmpty)
+			.toSortedMap()
 
-		val possibleTargets = dependenciesToTargets.values
+		val possibleTargets: SortedSet<String> = dependenciesToTargets.values
 			.reduceOrNull(Set<String>::intersect)
+			?.toSortedSet()
 			?: throw IllegalStateException("Project has zero dependencies (not even the stdlib)")
 
-		val missingTargets = possibleTargets - currentTargets
+		val missingTargets: SortedSet<String> = (possibleTargets - currentTargets).toSortedSet()
 
 		if (logger.isDebugEnabled) {
 			logger.debug(
