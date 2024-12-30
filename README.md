@@ -1,6 +1,6 @@
 # KMP Missing Targets
 
-A Gradle plugin which finds missing Kotlin multiplatform targets. **Not ready for use.**
+A Gradle plugin which finds missing Kotlin multiplatform targets.
 
 ```
 FAILURE: Build failed with an exception.
