@@ -12,6 +12,10 @@ Execution failed for task ':kmpMissingTargets'.
    - wasmJs
 ```
 
+Jump to:
+[Introduction](#Introduction) |
+[Usage](#Usage) |
+[License](#License)
 
 ## Introduction
 
@@ -60,6 +64,46 @@ kotlinMissingTargets {
   ignore("wasmJs", because = "Wasm sandbox prevents … etc.")
 }
 ```
+
+## Usage
+
+Add the dependency and apply the plugin:
+
+```groovy
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.jakewharton.kmpmt:kmp-missing-targets:0.1.0'
+  }
+}
+
+apply plugin: 'com.jakewharton.kmp-missing-targets'
+```
+
+<details>
+<summary>Snapshots of the development version are available in Sonatype's snapshots repository.</summary>
+<p>
+
+```groovy
+buildscript {
+  repositories {
+    mavenCentral()
+    maven {
+      url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+  }
+  dependencies {
+    classpath 'com.jakewharton.kmpmt:kmp-missing-targets:0.2.0-SNAPSHOT'
+  }
+}
+
+apply plugin: 'com.jakewharton.kmp-missing-targets'
+```
+
+</p>
+</details>
 
 
 ## License
