@@ -49,7 +49,7 @@ public class MissingTargetsPlugin : Plugin<Project> {
 			it.group = VERIFICATION_GROUP
 
 			it.projectName.set(project.name)
-			it.sourceSetName.set("commonMain")
+			it.sourceSetName.set("common")
 			it.ignoredTargetToReasons.set(provider(missingTargetsExtension::ignoredTargets))
 
 			val reporting = project.extensions.getByType(ReportingExtension::class.java)

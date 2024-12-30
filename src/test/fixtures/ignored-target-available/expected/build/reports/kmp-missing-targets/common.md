@@ -1,4 +1,4 @@
-# Project 'ignored-target-available' `commonMain`
+# Project 'ignored-target-available', `common` source set
 
 ## Current targets
 - `js`
