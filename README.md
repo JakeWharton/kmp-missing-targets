@@ -55,7 +55,7 @@ Want to know which dependencies are blocking you from supporting a particular ta
 
 Now you know which dependencies to chase when your users come asking.
 
-[Full example report](src/test/fixtures/first/expected/build/reports/kmp-missing-targets/commonMain.md).
+[Full example report](src/test/fixtures/available-targets/expected/build/reports/kmp-missing-targets.md).
 
 If you can't or won't support a target, tell the plugin to ignore it.
 
