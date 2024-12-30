@@ -8,48 +8,65 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.logging.Logger
 
-internal data class DependencyCoordinates(
+internal data class DependencyCoordinate(
 	val group: String,
 	val artifact: String,
-	val version: String,
 ) : Serializable,
-	Comparable<DependencyCoordinates> {
-	override fun toString() = "$group:$artifact:$version"
-	fun moduleCoordinate() = "$this@module"
-	override fun compareTo(other: DependencyCoordinates) = comparator.compare(this, other)
+	Comparable<DependencyCoordinate> {
+	override fun toString() = "$group:$artifact"
+	override fun compareTo(other: DependencyCoordinate) = comparator.compare(this, other)
 
 	private companion object {
 		val comparator = compareBy(
-			DependencyCoordinates::group,
-			DependencyCoordinates::artifact,
-			DependencyCoordinates::version,
+			DependencyCoordinate::group,
+			DependencyCoordinate::artifact,
 		)
 	}
 }
 
-internal fun loadDependencyCoordinates(
+internal data class VersionedDependency(
+	val coordinate: DependencyCoordinate,
+	val version: String,
+) : Serializable,
+	Comparable<VersionedDependency> {
+	override fun toString() = "$coordinate:$version"
+	fun moduleCoordinate() = "$this@module"
+	override fun compareTo(other: VersionedDependency) = comparator.compare(this, other)
+
+	private companion object {
+		val comparator = compareBy(
+			VersionedDependency::coordinate,
+			VersionedDependency::version,
+		)
+	}
+}
+
+internal fun loadVersionedDependencies(
 	logger: Logger,
 	root: ResolvedComponentResult,
 ): DependencyResolutionResult {
 	val warnings = mutableListOf<String>()
 
-	val coordinates = mutableSetOf<DependencyCoordinates>()
-	loadDependencyCoordinates(logger, root, coordinates, mutableSetOf(), depth = 1)
+	val coordinates = mutableSetOf<VersionedDependency>()
+	loadVersionedDependencies(logger, root, coordinates, mutableSetOf(), depth = 1)
 
 	return DependencyResolutionResult(coordinates, warnings)
 }
 
 internal data class DependencyResolutionResult(
-	val coordinates: Set<DependencyCoordinates>,
+	val versionedCoordinates: Set<VersionedDependency>,
 	val configWarnings: List<String>,
 )
 
-internal fun ModuleComponentIdentifier.toDependencyCoordinates() = DependencyCoordinates(group, module, version)
+internal fun ModuleComponentIdentifier.toVersionedDependency() = VersionedDependency(
+	coordinate = DependencyCoordinate(group, module),
+	version = version,
+)
 
-private fun loadDependencyCoordinates(
+private fun loadVersionedDependencies(
 	logger: Logger,
 	root: ResolvedComponentResult,
-	destination: MutableSet<DependencyCoordinates>,
+	destination: MutableSet<VersionedDependency>,
 	seen: MutableSet<ComponentIdentifier>,
 	depth: Int,
 ) {
@@ -67,7 +84,7 @@ private fun loadDependencyCoordinates(
 				// Assuming flat-dir repository dependency, do nothing.
 				ignoreSuffix = " ignoring because flat-dir repository artifact has no metadata"
 			} else {
-				destination += id.toDependencyCoordinates()
+				destination += id.toVersionedDependency()
 			}
 		}
 
@@ -92,7 +109,7 @@ private fun loadDependencyCoordinates(
 		if (dependency is ResolvedDependencyResult) {
 			val selected = dependency.selected
 			if (seen.add(selected.id)) {
-				loadDependencyCoordinates(
+				loadVersionedDependencies(
 					logger,
 					selected,
 					destination,
