@@ -75,7 +75,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.jakewharton.kmpmt:kmp-missing-targets:0.1.0'
+    classpath 'com.jakewharton.kmpmt:kmpmt-gradle-plugin:0.1.0'
   }
 }
 
@@ -95,7 +95,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'com.jakewharton.kmpmt:kmp-missing-targets:0.2.0-SNAPSHOT'
+    classpath 'com.jakewharton.kmpmt:kmpmt-gradle-plugin:0.2.0-SNAPSHOT'
   }
 }
 
