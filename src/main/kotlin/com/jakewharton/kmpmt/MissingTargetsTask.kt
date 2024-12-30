@@ -28,7 +28,7 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.result.ResolvedVariantResult
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -36,7 +36,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.konan.target.KonanTarget.Companion.deprecatedTargets
 import org.jetbrains.kotlin.konan.target.KonanTarget.Companion.predefinedTargets
@@ -50,16 +50,13 @@ public abstract class MissingTargetsTask : DefaultTask() {
 	internal abstract val projectName: Property<String>
 
 	@get:Input
-	internal abstract val sourceSetName: Property<String>
-
-	@get:Input
 	internal abstract val sourceSetTargets: SetProperty<String>
 
 	@get:Input
 	internal abstract val ignoredTargetToReasons: MapProperty<String, List<String>>
 
-	@get:OutputDirectory
-	internal abstract val outputDir: DirectoryProperty
+	@get:OutputFile
+	internal abstract val outputFile: RegularFileProperty
 
 	@TaskAction
 	public fun execute() {
@@ -114,8 +111,6 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		if (logger.isDebugEnabled) {
 			logger.debug(
 				buildString {
-					append(sourceSetName)
-					append(": ")
 					appendLine(currentTargets)
 
 					if (dependenciesToTargets.isNotEmpty()) {
@@ -134,8 +129,6 @@ public abstract class MissingTargetsTask : DefaultTask() {
 					appendLine(possibleTargets)
 					append("ignored: ")
 					appendLine(ignoredTargets)
-					append("current: ")
-					appendLine(currentTargets)
 					append("missing: ")
 					appendLine(missingTargets)
 					append("blocked: ")
@@ -166,113 +159,106 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			}
 		}
 
-		val projectName = projectName.get()
-		val sourceSetName = sourceSetName.get()
-
-		val outputFile = outputDir.get().file("$sourceSetName.md").asFile
+		val outputFile = outputFile.get().asFile
 		outputFile.parentFile.mkdirs()
 
-		outputFile.writeText(
-			buildString {
-				append("# Project '")
-				append(projectName)
-				append("', `")
-				append(sourceSetName)
-				appendLine("` source set")
-				appendLine()
+		outputFile.useBufferedWriter {
+			append("# Project '")
+			append(projectName.get())
+			appendLine('\'')
+			appendLine()
 
-				appendLine("## Current targets")
-				for (target in currentTargets) {
+			appendLine("## Current targets")
+			for (target in currentTargets) {
+				append("- `")
+				append(target)
+				appendLine('`')
+			}
+
+			if (missingTargets.isNotEmpty()) {
+				appendLine()
+				appendLine("## Available targets")
+				for (target in missingTargets) {
 					append("- `")
 					append(target)
 					appendLine('`')
 				}
+			}
 
-				if (missingTargets.isNotEmpty()) {
+			if (unavailableTargets.isNotEmpty()) {
+				appendLine()
+				appendLine("## Unavailable targets")
+				for (target in unavailableTargets) {
+					append("- `")
+					append(target)
+					appendLine('`')
+				}
+			}
+
+			if (ignoredTargetToReasons.isNotEmpty()) {
+				appendLine()
+				appendLine("## Ignored targets")
+				for ((target, reasons) in ignoredTargetToReasons) {
+					append("- `")
+					append(target)
+					append("` because")
+					if (reasons.size == 1) {
+						append(' ')
+						appendLine(reasons[0])
+					} else {
+						appendLine()
+						for (reason in reasons) {
+							append("  - ")
+							appendLine(reason)
+						}
+					}
+				}
+			}
+
+			appendLine()
+			appendLine()
+			appendLine("# Unsupported dependencies by target")
+			if (targetsToMissingCoordinates.isEmpty()) {
+				appendLine()
+				appendLine("None!")
+			} else {
+				for ((target, coordinates) in targetsToMissingCoordinates) {
 					appendLine()
-					appendLine("## Available targets")
-					for (target in missingTargets) {
+					append("## `")
+					append(target)
+					appendLine("` unsupported by")
+					for (coordinate in coordinates) {
+						append("- `")
+						append(coordinate)
+						appendLine('`')
+					}
+				}
+			}
+
+			appendLine()
+			appendLine()
+			appendLine("# Supported targets by dependency")
+			if (dependenciesToTargets.isEmpty()) {
+				appendLine()
+				appendLine("None!")
+			} else {
+				for ((dependency, coordinateTargets) in dependenciesToTargets) {
+					appendLine()
+					append("## `")
+					append(dependency.coordinate)
+					appendLine('`')
+					appendLine()
+					append("Current version: ")
+					appendLine(dependency.version)
+					appendLine()
+					for (target in coordinateTargets) {
 						append("- `")
 						append(target)
 						appendLine('`')
 					}
 				}
-
-				if (unavailableTargets.isNotEmpty()) {
-					appendLine()
-					appendLine("## Unavailable targets")
-					for (target in unavailableTargets) {
-						append("- `")
-						append(target)
-						appendLine('`')
-					}
-				}
-
-				if (ignoredTargetToReasons.isNotEmpty()) {
-					appendLine()
-					appendLine("## Ignored targets")
-					for ((target, reasons) in ignoredTargetToReasons) {
-						append("- `")
-						append(target)
-						append("` because")
-						if (reasons.size == 1) {
-							append(' ')
-							appendLine(reasons[0])
-						} else {
-							appendLine()
-							for (reason in reasons) {
-								append("  - ")
-								appendLine(reason)
-							}
-						}
-					}
-				}
-
-				appendLine()
-				appendLine()
-				appendLine("# Unsupported dependencies by target")
-				if (targetsToMissingCoordinates.isEmpty()) {
-					appendLine()
-					appendLine("None!")
-				} else {
-					for ((target, coordinates) in targetsToMissingCoordinates) {
-						appendLine()
-						append("## `")
-						append(target)
-						appendLine("` unsupported by")
-						for (coordinate in coordinates) {
-							append("- `")
-							append(coordinate)
-							appendLine('`')
-						}
-					}
-				}
-
-				appendLine()
-				appendLine()
-				appendLine("# Supported targets by dependency")
-				if (dependenciesToTargets.isEmpty()) {
-					appendLine()
-					appendLine("None!")
-				} else {
-					for ((dependency, coordinateTargets) in dependenciesToTargets) {
-						appendLine()
-						append("## `")
-						append(dependency.coordinate)
-						appendLine('`')
-						appendLine()
-						append("Current version: ")
-						appendLine(dependency.version)
-						appendLine()
-						for (target in coordinateTargets) {
-							append("- `")
-							append(target)
-							appendLine('`')
-						}
-					}
-				}
-			},
-		)
+			}
+		}
 
 		check(missingTargets.isEmpty()) {
 			buildString {

@@ -1,4 +1,4 @@
-# Project 'ignored-target-available', `common` source set
+# Project 'available-targets'
 
 ## Current targets
 - `js`
@@ -13,6 +13,8 @@
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`
+- `linuxArm64`
+- `macosArm64`
 - `macosX64`
 - `mingwX64`
 - `tvosArm64`
@@ -27,12 +29,6 @@
 
 ## Unavailable targets
 - `wasmWasi`
-
-## Ignored targets
-- `linuxArm64` because single reason
-- `macosArm64` because
-  - some reason
-  - another reason
 
 
 # Unsupported dependencies by target
