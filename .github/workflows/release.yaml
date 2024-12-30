@@ -1,17 +1,13 @@
-name: build
+name: release
 
 on:
-  pull_request: {}
-  workflow_dispatch: {}
   push:
-    branches:
-      - 'trunk'
-    tags-ignore:
+    tags:
       - '**'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -20,20 +16,28 @@ jobs:
           distribution: 'zulu'
           java-version: 23
 
-      - run: ./gradlew build dokkaHtml
-
       - run: ./gradlew publish
-        if: ${{ github.ref == 'refs/heads/trunk' && github.repository == 'JakeWharton/kmp-missing-targets' }}
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Extract release notes
+        id: release_notes
+        uses: ffurrer2/extract-release-notes@v2
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          body: ${{ steps.release_notes.outputs.release_notes }}
+
+      - run: ./gradlew dokkaHtml
 
       - name: Deploy docs to website
-        if: ${{ github.ref == 'refs/heads/trunk' && github.repository == 'JakeWharton/kmp-missing-targets' }}
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: site
           FOLDER: build/dokka/html
-          TARGET_FOLDER: docs/latest/
+          TARGET_FOLDER: docs/0.x/
           CLEAN: true

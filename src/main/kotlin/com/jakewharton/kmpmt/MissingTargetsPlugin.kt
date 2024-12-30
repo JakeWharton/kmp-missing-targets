@@ -10,13 +10,15 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget.Companion.METADATA_TARGET_NAME
 
+// HEY! If you update the minimum-supported Gradle version check JVM and Kotlin API target in build.gradle.
+private val minimumGradleVersion = GradleVersion.version("8.0")
+
 @Suppress("unused") // Instantiated reflectively by Gradle.
 public class MissingTargetsPlugin : Plugin<Project> {
 	override fun apply(project: Project) {
-		// HEY! If you update the minimum-supported Gradle version check to see if the Kotlin language version
-		// can be bumped. See https://docs.gradle.org/current/userguide/compatibility.html#kotlin.
-		check(GradleVersion.current() >= GradleVersion.version("8.0")) {
-			"Plugin requires Gradle 8.0 or later. Found ${GradleVersion.current()}"
+		val gradleVersion = GradleVersion.current()
+		check(gradleVersion >= minimumGradleVersion) {
+			"Plugin requires Gradle ${minimumGradleVersion.version} or later. Found ${gradleVersion.version}"
 		}
 
 		var gotKmp = false
