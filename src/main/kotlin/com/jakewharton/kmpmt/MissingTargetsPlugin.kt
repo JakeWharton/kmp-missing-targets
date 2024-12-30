@@ -37,12 +37,20 @@ public class MissingTargetsPlugin : Plugin<Project> {
 		//  Remove all target-specific source sets
 		//  Create one task for each of these configurations
 
+		val missingTargetsExtension = MissingTargetsExtensionImpl()
+		extensions.add(
+			MissingTargetsExtension::class.java,
+			"kotlinMissingTargets",
+			missingTargetsExtension,
+		)
+
 		val missingTargetsTask = tasks.register("kmpMissingTargets", MissingTargetsTask::class.java) {
 			it.description = "Check for missing targets based on the supported targets of common dependencies"
 			it.group = VERIFICATION_GROUP
 
 			it.projectName.set(project.name)
 			it.sourceSetName.set("commonMain")
+			it.ignoredTargetToReasons.set(provider(missingTargetsExtension::ignoredTargets))
 
 			val reporting = project.extensions.getByType(ReportingExtension::class.java)
 			it.outputDir.convention(reporting.baseDirectory.dir("kmp-missing-targets"))

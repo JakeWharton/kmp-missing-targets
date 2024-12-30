@@ -55,6 +55,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 	@get:Input
 	internal abstract val sourceSetTargets: SetProperty<String>
 
+	@get:Input
+	internal abstract val ignoredTargetToReasons: MapProperty<String, List<String>>
+
 	@get:OutputDirectory
 	internal abstract val outputDir: DirectoryProperty
 
@@ -64,6 +67,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val jsonFormat = Json { ignoreUnknownKeys = true }
 
 		val currentTargets: SortedSet<String> = sourceSetTargets.get().toSortedSet()
+
+		val ignoredTargetToReasons: SortedMap<String, List<String>> = ignoredTargetToReasons.get().toSortedMap()
+		val ignoredTargets: SortedSet<String> = ignoredTargetToReasons.keys.toSortedSet()
 
 		val dependenciesToTargets: SortedMap<VersionedDependency, SortedSet<String>> = dependenciesToModuleJson.get()
 			.filterKeys { (coordinate) ->
@@ -86,8 +92,11 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			}
 			.toSortedMap()
 
-		val targetsToMissingCoordinates: SortedMap<String, Set<VersionedDependency>> = dependenciesToTargets.values
+		val knownTargets: SortedSet<String> = dependenciesToTargets.values
 			.fold(emptySet(), Set<String>::union)
+			.toSortedSet()
+
+		val targetsToMissingCoordinates: SortedMap<String, Set<VersionedDependency>> = knownTargets
 			.associateWith { seenTarget ->
 				dependenciesToTargets.filterValues { seenTarget !in it }.keys
 			}
@@ -99,7 +108,8 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			?.toSortedSet()
 			?: throw IllegalStateException("Project has zero dependencies (not even the stdlib)")
 
-		val missingTargets: SortedSet<String> = (possibleTargets - currentTargets).toSortedSet()
+		val unavailableTargets: SortedSet<String> = (targetsToMissingCoordinates.keys - ignoredTargets).toSortedSet()
+		val missingTargets: SortedSet<String> = (possibleTargets - currentTargets - ignoredTargets).toSortedSet()
 
 		if (logger.isDebugEnabled) {
 			logger.debug(
@@ -118,14 +128,42 @@ public abstract class MissingTargetsTask : DefaultTask() {
 						appendLine()
 					}
 
+					append("known: ")
+					appendLine(knownTargets)
 					append("possible: ")
 					appendLine(possibleTargets)
+					append("ignored: ")
+					appendLine(ignoredTargets)
+					append("current: ")
+					appendLine(currentTargets)
 					append("missing: ")
 					appendLine(missingTargets)
 					append("blocked: ")
-					appendLine(targetsToMissingCoordinates.keys)
+					appendLine(unavailableTargets)
 				},
 			)
+		}
+
+		val unknownIgnoredTargets = ignoredTargets - knownTargets
+		check(unknownIgnoredTargets.isEmpty()) {
+			buildString {
+				appendLine("Unknown ignored targets specified!")
+				for (target in unknownIgnoredTargets) {
+					append("\n- ")
+					append(target)
+				}
+			}
+		}
+
+		val usedIgnoredTargets = ignoredTargets.intersect(currentTargets)
+		check(usedIgnoredTargets.isEmpty()) {
+			buildString {
+				appendLine("Ignored targets are used! Either remove the ignore or the declaration.")
+				for (target in usedIgnoredTargets) {
+					append("\n- ")
+					append(target)
+				}
+			}
 		}
 
 		val projectName = projectName.get()
@@ -142,25 +180,52 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				append(sourceSetName)
 				appendLine('`')
 				appendLine()
+
 				appendLine("## Current targets")
 				for (target in currentTargets) {
 					append("- `")
 					append(target)
 					appendLine('`')
 				}
-				appendLine()
-				appendLine("## Available targets")
-				for (target in missingTargets) {
-					append("- `")
-					append(target)
-					appendLine('`')
+
+				if (missingTargets.isNotEmpty()) {
+					appendLine()
+					appendLine("## Available targets")
+					for (target in missingTargets) {
+						append("- `")
+						append(target)
+						appendLine('`')
+					}
 				}
-				appendLine()
-				appendLine("## Unavailable targets")
-				for (target in targetsToMissingCoordinates.keys) {
-					append("- `")
-					append(target)
-					appendLine('`')
+
+				if (unavailableTargets.isNotEmpty()) {
+					appendLine()
+					appendLine("## Unavailable targets")
+					for (target in unavailableTargets) {
+						append("- `")
+						append(target)
+						appendLine('`')
+					}
+				}
+
+				if (ignoredTargetToReasons.isNotEmpty()) {
+					appendLine()
+					appendLine("## Ignored targets")
+					for ((target, reasons) in ignoredTargetToReasons) {
+						append("- `")
+						append(target)
+						append("` because")
+						if (reasons.size == 1) {
+							append(' ')
+							appendLine(reasons[0])
+						} else {
+							appendLine()
+							for (reason in reasons) {
+								append("  - ")
+								appendLine(reason)
+							}
+						}
+					}
 				}
 
 				appendLine()
@@ -213,9 +278,8 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			buildString {
 				appendLine("Missing targets detected!")
 				for (target in missingTargets) {
-					append("- `")
+					append("\n- ")
 					append(target)
-					appendLine('`')
 				}
 			}
 		}

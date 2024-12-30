@@ -53,6 +53,14 @@ Now you know which dependencies to chase when your users come asking.
 
 [Full example report](src/test/fixtures/first/expected/build/reports/kmp-missing-targets/commonMain.md).
 
+If you can't or won't support a target, tell the plugin to ignore it.
+
+```kotlin
+kotlinMissingTargets {
+  ignore("wasmJs", because = "Wasm sandbox prevents … etc.")
+}
+```
+
 
 ## License
 

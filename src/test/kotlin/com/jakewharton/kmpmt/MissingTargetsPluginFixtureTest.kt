@@ -32,6 +32,8 @@ class MissingTargetsPluginFixtureTest {
 	fun failure(
 		@TestParameter(
 			"first",
+			"ignored-target-available",
+			"ignored-target-unavailable",
 		) fixtureName: String,
 	) {
 		val fixtureDir = File(fixturesDir, fixtureName)
@@ -44,6 +46,32 @@ class MissingTargetsPluginFixtureTest {
 		val fixtureDir = File(fixturesDir, "no-stdlib")
 		val result = createRunner(fixtureDir).buildAndFail()
 		assertThat(result.output).contains("Project has zero dependencies (not even the stdlib)")
+	}
+
+	@Test
+	fun ignoredTargetFailsIfUnknown() {
+		val fixtureDir = File(fixturesDir, "ignored-target-fails-if-unknown")
+		val result = createRunner(fixtureDir).buildAndFail()
+		assertThat(result.output).contains(
+			"""
+			|Unknown ignored targets specified!
+			|
+			|- dart
+			""".trimMargin(),
+		)
+	}
+
+	@Test
+	fun ignoredTargetFailsIfUsed() {
+		val fixtureDir = File(fixturesDir, "ignored-target-fails-if-used")
+		val result = createRunner(fixtureDir).buildAndFail()
+		assertThat(result.output).contains(
+			"""
+			|Ignored targets are used! Either remove the ignore or the declaration.
+			|
+			|- jvm
+			""".trimMargin(),
+		)
 	}
 
 	private fun createRunner(fixtureDir: File): GradleRunner {
