@@ -1,4 +1,4 @@
-# Project 'first' `commonMain`
+# Project 'available-targets' `commonMain`
 
 ## Current targets
 - `js`
