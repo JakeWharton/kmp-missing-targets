@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget.Companion.predefinedTargets
 @CacheableTask
 public abstract class MissingTargetsTask : DefaultTask() {
 	@get:Input
-	internal abstract val coordinateToModuleJson: MapProperty<DependencyCoordinates, String>
+	internal abstract val dependenciesToModuleJson: MapProperty<VersionedDependency, String>
 
 	@get:Input
 	internal abstract val projectName: Property<String>
@@ -63,8 +63,8 @@ public abstract class MissingTargetsTask : DefaultTask() {
 
 		val currentTargets = sourceSetTargets.get().toSortedSet()
 
-		val coordinateToTargets = coordinateToModuleJson.get()
-			.filterKeys { coordinate ->
+		val dependenciesToTargets = dependenciesToModuleJson.get()
+			.filterKeys { (coordinate) ->
 				// The common stdlib has empty module metadata and is a dependency of the regular stdlib.
 				coordinate.group != "org.jetbrains.kotlin" || coordinate.artifact != "kotlin-stdlib-common"
 			}
@@ -84,14 +84,14 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			}
 			.toSortedMap()
 
-		val targetsToMissingCoordinates = coordinateToTargets.values
+		val targetsToMissingCoordinates = dependenciesToTargets.values
 			.fold(emptySet(), Set<String>::union)
 			.associateWith { seenTarget ->
-				coordinateToTargets.filterValues { seenTarget !in it }.keys
+				dependenciesToTargets.filterValues { seenTarget !in it }.keys
 			}
 			.filterValues(Set<*>::isNotEmpty)
 
-		val possibleTargets = coordinateToTargets.values
+		val possibleTargets = dependenciesToTargets.values
 			.reduceOrNull(Set<String>::intersect)
 			?: throw IllegalStateException("Project has zero dependencies (not even the stdlib)")
 
@@ -104,9 +104,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 					append(": ")
 					appendLine(currentTargets)
 
-					if (coordinateToTargets.isNotEmpty()) {
+					if (dependenciesToTargets.isNotEmpty()) {
 						appendLine()
-						for ((coordinate, coordinateTargets) in coordinateToTargets) {
+						for ((coordinate, coordinateTargets) in dependenciesToTargets) {
 							append(coordinate)
 							append(": ")
 							appendLine(coordinateTargets)
@@ -182,15 +182,19 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				appendLine()
 				appendLine()
 				appendLine("# Supported targets by dependency")
-				if (coordinateToTargets.isEmpty()) {
+				if (dependenciesToTargets.isEmpty()) {
 					appendLine()
 					appendLine("None!")
 				} else {
-					for ((coordinate, coordinateTargets) in coordinateToTargets) {
+					for ((dependency, coordinateTargets) in dependenciesToTargets) {
 						appendLine()
 						append("## `")
-						append(coordinate)
+						append(dependency.coordinate)
 						appendLine('`')
+						appendLine()
+						append("Current version: ")
+						appendLine(dependency.version)
+						appendLine()
 						for (target in coordinateTargets) {
 							append("- `")
 							append(target)
@@ -213,7 +217,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		}
 	}
 
-	private fun extractEffectiveTargets(coordinates: DependencyCoordinates, metadata: GradleModuleMetadata) = buildSet {
+	private fun extractEffectiveTargets(coordinates: VersionedDependency, metadata: GradleModuleMetadata) = buildSet {
 		for (variant in metadata.variants) {
 			if (variant.attributes.gradleDocsType != null) continue
 			if (variant.attributes.gradleUsage != "kotlin-api" && variant.attributes.gradleUsage != "java-api") continue
@@ -225,7 +229,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				}
 
 				"native" -> {
-					if (coordinates.group == "org.jetbrains.kotlin" && coordinates.artifact == "kotlin-stdlib") {
+					if (coordinates.coordinate.group == "org.jetbrains.kotlin" && coordinates.coordinate.artifact == "kotlin-stdlib") {
 						// The stdlib does not have proper native targets in its module metadata because it's managed
 						// by the Kotlin Gradle plugin / Kotlin native compiler. Instead, ask the Kotlin Gradle plugin
 						// for its set of supported, non-deprecated targets.
@@ -266,28 +270,28 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val moduleJsons = configuration
 			.flatMap { it.incoming.resolutionResult.rootComponent }
 			.map { root ->
-				val directDependencies = loadDependencyCoordinates(
+				val directDependencies = loadVersionedDependencies(
 					logger,
 					root,
 				)
-				val moduleFiles = directDependencies.coordinates.fetchModuleFiles(
+				val moduleFiles = directDependencies.versionedCoordinates.fetchModuleFiles(
 					root.variants,
 					dependencies,
 					configurations,
 				)
 				moduleFiles.associate {
-					it.dependencyCoordinates to it.moduleFile.readText()
+					it.dependency to it.moduleFile.readText()
 				}
 			}
 
-		this.coordinateToModuleJson.set(moduleJsons)
+		this.dependenciesToModuleJson.set(moduleJsons)
 	}
 
-	private fun Set<DependencyCoordinates>.fetchModuleFiles(
+	private fun Set<VersionedDependency>.fetchModuleFiles(
 		variants: List<ResolvedVariantResult>,
 		dependencies: DependencyHandler,
 		configurations: ConfigurationContainer,
-	): List<DependencyCoordinatesWithModuleFile> {
+	): List<DependencyWithModuleFile> {
 		val moduleDependencies = map {
 			dependencies.create(it.moduleCoordinate())
 		}.toTypedArray()
@@ -307,17 +311,17 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val withoutVariants = configurations.detachedConfiguration(*moduleDependencies).artifacts()
 
 		return (withVariants + withoutVariants).mapNotNull {
-			val coordinates = (it.id.componentIdentifier as ModuleComponentIdentifier).toDependencyCoordinates()
+			val coordinates = (it.id.componentIdentifier as ModuleComponentIdentifier).toVersionedDependency()
 			try {
-				DependencyCoordinatesWithModuleFile(coordinates, it.file)
-			} catch (e: GradleException) {
+				DependencyWithModuleFile(coordinates, it.file)
+			} catch (_: GradleException) {
 				null
 			}
-		}.distinctBy { it.dependencyCoordinates }
+		}.distinctBy { it.dependency }
 	}
 
-	private data class DependencyCoordinatesWithModuleFile(
-		val dependencyCoordinates: DependencyCoordinates,
+	private data class DependencyWithModuleFile(
+		val dependency: VersionedDependency,
 		val moduleFile: File,
 	)
 

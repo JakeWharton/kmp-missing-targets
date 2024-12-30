@@ -39,7 +39,10 @@
 
 # Supported targets by dependency
 
-## `org.jetbrains.kotlin:kotlin-stdlib:2.1.0`
+## `org.jetbrains.kotlin:kotlin-stdlib`
+
+Current version: 2.1.0
+
 - `androidArm32`
 - `androidArm64`
 - `androidX64`
@@ -65,7 +68,10 @@
 - `watchosSimulatorArm64`
 - `watchosX64`
 
-## `org.jetbrains.kotlinx:atomicfu:0.23.1`
+## `org.jetbrains.kotlinx:atomicfu`
+
+Current version: 0.23.1
+
 - `androidArm32`
 - `androidArm64`
 - `androidX64`
@@ -91,7 +97,10 @@
 - `watchosSimulatorArm64`
 - `watchosX64`
 
-## `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0`
+## `org.jetbrains.kotlinx:kotlinx-coroutines-core`
+
+Current version: 1.8.0
+
 - `androidArm32`
 - `androidArm64`
 - `androidX64`

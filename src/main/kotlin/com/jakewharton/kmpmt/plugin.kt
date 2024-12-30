@@ -8,7 +8,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMultiplatformPlugin.Companion.METADATA_TARGET_NAME
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget.Companion.METADATA_TARGET_NAME
 
 @Suppress("unused") // Instantiated reflectively by Gradle.
 public class MissingTargetsPlugin : Plugin<Project> {
