@@ -176,9 +176,9 @@ public abstract class MissingTargetsTask : DefaultTask() {
 			buildString {
 				append("# Project '")
 				append(projectName)
-				append("' `")
+				append("', `")
 				append(sourceSetName)
-				appendLine('`')
+				appendLine("` source set")
 				appendLine()
 
 				appendLine("## Current targets")
