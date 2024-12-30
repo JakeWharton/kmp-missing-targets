@@ -321,7 +321,6 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val moduleFile: File,
 	)
 
-	private fun ModuleComponentIdentifier.toDependencyCoordinates() = DependencyCoordinates(group, module, version)
 	private fun Configuration.artifacts() =
 		resolvedConfiguration.lenientConfiguration.allModuleDependencies.flatMap { it.allModuleArtifacts }
 }
