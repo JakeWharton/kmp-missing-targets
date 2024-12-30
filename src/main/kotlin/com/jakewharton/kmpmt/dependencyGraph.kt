@@ -8,6 +8,9 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.logging.Logger
 
+internal val kotlinStdlib = DependencyCoordinate("org.jetbrains.kotlin", "kotlin-stdlib")
+internal val kotlinStdlibCommon = DependencyCoordinate("org.jetbrains.kotlin", "kotlin-stdlib-common")
+
 internal data class DependencyCoordinate(
 	val group: String,
 	val artifact: String,

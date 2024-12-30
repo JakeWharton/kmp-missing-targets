@@ -74,7 +74,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		val dependenciesToTargets: SortedMap<VersionedDependency, SortedSet<String>> = dependenciesToModuleJson.get()
 			.filterKeys { (coordinate) ->
 				// The common stdlib has empty module metadata and is a dependency of the regular stdlib.
-				coordinate.group != "org.jetbrains.kotlin" || coordinate.artifact != "kotlin-stdlib-common"
+				coordinate != kotlinStdlibCommon
 			}
 			.mapValues { (coordinates, json) ->
 				try {
@@ -297,7 +297,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 				}
 
 				"native" -> {
-					if (coordinates.coordinate.group == "org.jetbrains.kotlin" && coordinates.coordinate.artifact == "kotlin-stdlib") {
+					if (coordinates.coordinate == kotlinStdlib) {
 						// The stdlib does not have proper native targets in its module metadata because it's managed
 						// by the Kotlin Gradle plugin / Kotlin native compiler. Instead, ask the Kotlin Gradle plugin
 						// for its set of supported, non-deprecated targets.
