@@ -75,7 +75,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.jakewharton.kmpmt:kmpmt-gradle-plugin:0.1.0'
+    classpath 'com.jakewharton.kmpmt:kmpmt-gradle-plugin:0.1.1'
   }
 }
 
