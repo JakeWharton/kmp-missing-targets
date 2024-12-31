@@ -369,4 +369,7 @@ public abstract class MissingTargetsTask : DefaultTask() {
 
 	private fun Configuration.artifacts() =
 		resolvedConfiguration.lenientConfiguration.allModuleDependencies.flatMap { it.allModuleArtifacts }
+
+	private val kotlinStdlib = DependencyCoordinate("org.jetbrains.kotlin", "kotlin-stdlib")
+	private val kotlinStdlibCommon = DependencyCoordinate("org.jetbrains.kotlin", "kotlin-stdlib-common")
 }
