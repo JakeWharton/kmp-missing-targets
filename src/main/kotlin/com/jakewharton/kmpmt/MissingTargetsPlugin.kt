@@ -8,7 +8,8 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget.Companion.METADATA_TARGET_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 // HEY! If you update the minimum-supported Gradle version check JVM and Kotlin API target in build.gradle.
 private val minimumGradleVersion = GradleVersion.version("8.0")
@@ -56,7 +57,7 @@ public class MissingTargetsPlugin : Plugin<Project> {
 		}
 
 		kotlin.targets.configureEach { target ->
-			if (target.name == METADATA_TARGET_NAME) {
+			if (target.platformType == KotlinPlatformType.common) {
 				val compilation = target.compilations.getByName(MAIN_COMPILATION_NAME)
 				val runtimeConfigurationName = compilation.compileDependencyConfigurationName
 				val runtimeConfiguration = project.configurations.named(runtimeConfigurationName)
@@ -64,9 +65,13 @@ public class MissingTargetsPlugin : Plugin<Project> {
 					it.configurationToCheck(runtimeConfiguration)
 				}
 			} else {
-				// TODO Name is the wrong thing to use here since it can be customized.
+				val name = when (target) {
+					is KotlinNativeTarget -> target.konanTarget.name.nativeTargetNameToCamelCase()
+					// TODO Name is the wrong thing to use here since it can be customized.
+					else -> target.name
+				}
 				missingTargetsTask.configure {
-					it.sourceSetTargets.add(target.name)
+					it.sourceSetTargets.add(name)
 				}
 			}
 		}

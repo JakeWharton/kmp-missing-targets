@@ -306,18 +306,6 @@ public abstract class MissingTargetsTask : DefaultTask() {
 		}
 	}
 
-	private fun String.nativeTargetNameToCamelCase(): String {
-		return split('_')
-			.withIndex()
-			.joinToString("") { (index, value) ->
-				if (index == 0) {
-					value
-				} else {
-					value.replaceFirstChar(Char::uppercase)
-				}
-			}
-	}
-
 	internal fun configurationToCheck(configuration: Provider<Configuration>) {
 		val dependencies = project.dependencies
 		val configurations = project.configurations

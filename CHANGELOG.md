@@ -10,7 +10,7 @@ Changed:
 - Nothing yet!
 
 Fixed:
-- Nothing yet!
+- Correctly match native Android targets. They currently are named slightly different from the DSL, but it should still be relatively clear.
 
 
 ## [0.1.0] - 2024-12-30

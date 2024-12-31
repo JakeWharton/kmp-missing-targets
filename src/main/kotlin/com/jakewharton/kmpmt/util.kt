@@ -10,3 +10,15 @@ internal fun File.useBufferedWriter(block: Appendable.() -> Unit) {
 internal fun Appendable.append(any: Any) {
 	append(any.toString())
 }
+
+internal fun String.nativeTargetNameToCamelCase(): String {
+	return split('_')
+		.withIndex()
+		.joinToString("") { (index, value) ->
+			if (index == 0) {
+				value
+			} else {
+				value.replaceFirstChar(Char::uppercase)
+			}
+		}
+}
