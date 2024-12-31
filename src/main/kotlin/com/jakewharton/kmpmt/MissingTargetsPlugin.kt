@@ -9,7 +9,11 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 // HEY! If you update the minimum-supported Gradle version check JVM and Kotlin API target in build.gradle.
 private val minimumGradleVersion = GradleVersion.version("8.0")
@@ -67,8 +71,14 @@ public class MissingTargetsPlugin : Plugin<Project> {
 			} else {
 				val name = when (target) {
 					is KotlinNativeTarget -> target.konanTarget.name.nativeTargetNameToCamelCase()
-					// TODO Name is the wrong thing to use here since it can be customized.
-					else -> target.name
+					is KotlinJvmTarget -> "jvm"
+					is KotlinAndroidTarget -> "androidTarget"
+					is KotlinJsIrTarget -> when (target.wasmTargetType) {
+						null -> "js"
+						KotlinWasmTargetType.WASI -> "wasmWasi"
+						KotlinWasmTargetType.JS -> "wasmJs"
+					}
+					else -> error("Unknown target $target (${target::class.java})")
 				}
 				missingTargetsTask.configure {
 					it.sourceSetTargets.add(name)
