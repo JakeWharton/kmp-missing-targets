@@ -43,6 +43,7 @@ class MissingTargetsPluginFixtureTest {
 	fun failure(
 		@TestParameter(
 			"available-targets-some",
+			"custom-target-name",
 			"ignored-target-available",
 			"ignored-target-unavailable",
 		) fixtureName: String,

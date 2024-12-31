@@ -1,6 +1,10 @@
-# Project 'available-targets-all'
+# Project 'custom-target-name'
 
 ## Current targets
+- `js`
+- `jvm`
+
+## Available targets
 - `androidNativeArm32`
 - `androidNativeArm64`
 - `androidNativeX64`
@@ -8,8 +12,6 @@
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`
-- `js`
-- `jvm`
 - `linuxArm64`
 - `linuxX64`
 - `macosArm64`

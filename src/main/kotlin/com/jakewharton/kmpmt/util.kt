@@ -16,7 +16,11 @@ internal fun String.nativeTargetNameToCamelCase(): String {
 		.withIndex()
 		.joinToString("") { (index, value) ->
 			if (index == 0) {
-				value
+				if (value == "android") {
+					"androidNative"
+				} else {
+					value
+				}
 			} else {
 				value.replaceFirstChar(Char::uppercase)
 			}

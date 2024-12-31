@@ -6,10 +6,10 @@
 - `linuxX64`
 
 ## Available targets
-- `androidArm32`
-- `androidArm64`
-- `androidX64`
-- `androidX86`
+- `androidNativeArm32`
+- `androidNativeArm64`
+- `androidNativeX64`
+- `androidNativeX86`
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`
@@ -47,10 +47,10 @@
 
 Current version: 2.1.0
 
-- `androidArm32`
-- `androidArm64`
-- `androidX64`
-- `androidX86`
+- `androidNativeArm32`
+- `androidNativeArm64`
+- `androidNativeX64`
+- `androidNativeX86`
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`
@@ -76,10 +76,10 @@ Current version: 2.1.0
 
 Current version: 0.23.1
 
-- `androidArm32`
-- `androidArm64`
-- `androidX64`
-- `androidX86`
+- `androidNativeArm32`
+- `androidNativeArm64`
+- `androidNativeX64`
+- `androidNativeX86`
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`
@@ -105,10 +105,10 @@ Current version: 0.23.1
 
 Current version: 1.8.0
 
-- `androidArm32`
-- `androidArm64`
-- `androidX64`
-- `androidX86`
+- `androidNativeArm32`
+- `androidNativeArm64`
+- `androidNativeX64`
+- `androidNativeX86`
 - `iosArm64`
 - `iosSimulatorArm64`
 - `iosX64`

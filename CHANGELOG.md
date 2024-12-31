@@ -11,6 +11,7 @@ Changed:
 
 Fixed:
 - Correctly match native Android targets. They currently are named slightly different from the DSL, but it should still be relatively clear.
+- Use the Kotlin-standard name (not any user-supplied name) when parsing project targets.
 
 
 ## [0.1.0] - 2024-12-30
