@@ -29,9 +29,20 @@ import org.junit.runner.RunWith
 @RunWith(TestParameterInjector::class)
 class MissingTargetsPluginFixtureTest {
 	@Test
+	fun success(
+		@TestParameter(
+			"available-targets-all",
+		) fixtureName: String,
+	) {
+		val fixtureDir = File(fixturesDir, fixtureName)
+		createRunner(fixtureDir).build()
+		assertExpectedFiles(fixtureDir)
+	}
+
+	@Test
 	fun failure(
 		@TestParameter(
-			"available-targets",
+			"available-targets-some",
 			"ignored-target-available",
 			"ignored-target-unavailable",
 		) fixtureName: String,
@@ -86,11 +97,11 @@ class MissingTargetsPluginFixtureTest {
 			.withDebug(true) // Run in-process
 			.withArguments(
 				"clean",
-				"assemble",
-				"kmpMissingTargets",
+				"check",
 				"--stacktrace",
 				"--continue",
 				"--configuration-cache",
+				"--no-build-cache",
 				versionProperty,
 			)
 			.forwardOutput()
