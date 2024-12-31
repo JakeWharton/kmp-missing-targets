@@ -31,6 +31,7 @@ class MissingTargetsPluginFixtureTest {
 	@Test
 	fun success(
 		@TestParameter(
+			"android-local-target",
 			"available-targets-all",
 		) fixtureName: String,
 	) {

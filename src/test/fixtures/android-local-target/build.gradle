@@ -1,0 +1,55 @@
+buildscript {
+  dependencies {
+    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+    classpath libs.kotlin.gradlePlugin
+    classpath libs.android.gradlePlugin
+  }
+
+  repositories {
+    maven {
+      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+    }
+    mavenCentral()
+    google()
+  }
+}
+
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'com.android.library'
+apply plugin: 'com.jakewharton.kmp-missing-targets'
+
+kotlin {
+  android()
+  androidNativeArm32()
+  androidNativeArm64()
+  androidNativeX64()
+  androidNativeX86()
+  iosArm64()
+  iosSimulatorArm64()
+  iosX64()
+  js().nodejs()
+  jvm()
+  linuxArm64()
+  linuxX64()
+  macosArm64()
+  macosX64()
+  mingwX64()
+  tvosArm64()
+  tvosSimulatorArm64()
+  tvosX64()
+  wasmJs().nodejs()
+  wasmWasi().nodejs()
+  watchosArm32()
+  watchosArm64()
+  watchosDeviceArm64()
+  watchosSimulatorArm64()
+  watchosX64()
+}
+
+android {
+  namespace 'com.example'
+
+  defaultConfig {
+    compileSdk 34
+  }
+}
