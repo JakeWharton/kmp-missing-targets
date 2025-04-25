@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 23
+          java-version-file: .github/workflows/.java-version
 
       - run: ./gradlew build dokkaHtml
 
@@ -27,6 +27,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - name: Deploy docs to website
         if: ${{ github.ref == 'refs/heads/trunk' && github.repository == 'JakeWharton/kmp-missing-targets' }}
