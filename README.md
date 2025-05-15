@@ -83,7 +83,7 @@ apply plugin: 'com.jakewharton.kmp-missing-targets'
 ```
 
 <details>
-<summary>Snapshots of the development version are available in Sonatype's snapshots repository.</summary>
+<summary>Snapshots of the development version are available in the Central Portal Snapshots repository.</summary>
 <p>
 
 ```groovy
@@ -91,7 +91,7 @@ buildscript {
   repositories {
     mavenCentral()
     maven {
-      url 'https://oss.sonatype.org/content/repositories/snapshots/'
+      url 'https://central.sonatype.com/repository/maven-snapshots/'
     }
   }
   dependencies {
