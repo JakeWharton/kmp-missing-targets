@@ -10,7 +10,7 @@ Changed:
 - In-development snapshots are now published to the Central Portal Snapshots repository at https://central.sonatype.com/repository/maven-snapshots/.
 
 Fixed:
-- Nothing yet!
+- Support usage with Gradle 9.
 
 
 ## [0.1.1] - 2024-12-31
