@@ -19,7 +19,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jakewharton.kmp-missing-targets'
 
 kotlin {
-  android()
+  androidTarget()
   androidNativeArm32()
   androidNativeArm64()
   androidNativeX64()
