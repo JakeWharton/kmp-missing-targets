@@ -1,17 +1,20 @@
-buildscript {
-  dependencies {
-    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
-    classpath libs.kotlin.gradlePlugin
-    classpath libs.android.gradlePlugin
-  }
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
-  repositories {
-    maven {
-      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
-    }
-    mavenCentral()
-    google()
-  }
+buildscript {
+	dependencies {
+		classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+		classpath libs.kotlin.gradlePlugin
+		classpath libs.android.gradlePlugin
+	}
+
+	repositories {
+		maven {
+			url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+		}
+		mavenCentral()
+		google()
+	}
 }
 
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
@@ -19,37 +22,39 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jakewharton.kmp-missing-targets'
 
 kotlin {
-  androidTarget()
-  androidNativeArm32()
-  androidNativeArm64()
-  androidNativeX64()
-  androidNativeX86()
-  iosArm64()
-  iosSimulatorArm64()
-  iosX64()
-  js().nodejs()
-  jvm()
-  linuxArm64()
-  linuxX64()
-  macosArm64()
-  macosX64()
-  mingwX64()
-  tvosArm64()
-  tvosSimulatorArm64()
-  tvosX64()
-  wasmJs().nodejs()
-  wasmWasi().nodejs()
-  watchosArm32()
-  watchosArm64()
-  watchosDeviceArm64()
-  watchosSimulatorArm64()
-  watchosX64()
+	androidTarget()
+	androidNativeArm32()
+	androidNativeArm64()
+	androidNativeX64()
+	androidNativeX86()
+	iosArm64()
+	iosSimulatorArm64()
+	iosX64()
+	js().nodejs()
+	jvm()
+	linuxArm64()
+	linuxX64()
+	macosArm64()
+	macosX64()
+	mingwX64()
+	tvosArm64()
+	tvosSimulatorArm64()
+	tvosX64()
+	wasmJs().nodejs()
+	wasmWasi().nodejs()
+	watchosArm32()
+	watchosArm64()
+	watchosDeviceArm64()
+	watchosSimulatorArm64()
+	watchosX64()
 }
 
 android {
-  namespace 'com.example'
+	namespace 'com.example'
 
-  defaultConfig {
-    compileSdk 34
-  }
+	defaultConfig {
+		compileSdk 34
+	}
 }
+
+extensions.getByType(YarnRootExtension).yarnLockMismatchReport = YarnLockMismatchReport.NONE

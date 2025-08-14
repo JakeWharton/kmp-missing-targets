@@ -1,15 +1,18 @@
-buildscript {
-  dependencies {
-    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
-    classpath libs.kotlin.gradlePlugin
-  }
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
-  repositories {
-    maven {
-      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
-    }
-    mavenCentral()
-  }
+buildscript {
+	dependencies {
+		classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+		classpath libs.kotlin.gradlePlugin
+	}
+
+	repositories {
+		maven {
+			url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+		}
+		mavenCentral()
+	}
 }
 
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
@@ -20,27 +23,29 @@ kotlinMissingTargets {
 }
 
 kotlin {
-  js().nodejs()
-  jvm()
-  linuxX64()
+	js().nodejs()
+	jvm()
+	linuxX64()
 
-  sourceSets {
-    commonMain {
-      dependencies {
-        implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0')
-      }
-    }
-    jvmAndLinuxMain {
-      dependsOn(commonMain)
-      dependencies {
-        implementation('org.jetbrains.compose.runtime:runtime:1.6.0')
-      }
-    }
-    jvmMain {
-      dependsOn(jvmAndLinuxMain)
-    }
-    linuxX64Main {
-      dependsOn(jvmAndLinuxMain)
-    }
-  }
+	sourceSets {
+		commonMain {
+			dependencies {
+				implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0')
+			}
+		}
+		jvmAndLinuxMain {
+			dependsOn(commonMain)
+			dependencies {
+				implementation('org.jetbrains.compose.runtime:runtime:1.6.0')
+			}
+		}
+		jvmMain {
+			dependsOn(jvmAndLinuxMain)
+		}
+		linuxX64Main {
+			dependsOn(jvmAndLinuxMain)
+		}
+	}
 }
+
+extensions.getByType(YarnRootExtension).yarnLockMismatchReport = YarnLockMismatchReport.NONE
