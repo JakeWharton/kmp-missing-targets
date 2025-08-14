@@ -1,21 +1,26 @@
-buildscript {
-  dependencies {
-    classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
-    classpath libs.kotlin.gradlePlugin
-  }
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
-  repositories {
-    maven {
-      url "file://${rootDir.absolutePath}/../../../../build/localMaven"
-    }
-    mavenCentral()
-  }
+buildscript {
+	dependencies {
+		classpath "com.jakewharton.kmpmt:kmpmt-gradle-plugin:$kmpmtVersion"
+		classpath libs.kotlin.gradlePlugin
+	}
+
+	repositories {
+		maven {
+			url "file://${rootDir.absolutePath}/../../../../build/localMaven"
+		}
+		mavenCentral()
+	}
 }
 
 apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'com.jakewharton.kmp-missing-targets'
 
 kotlin {
-  js("frontend").nodejs()
-  jvm("backend")
+	js("frontend").nodejs()
+	jvm("backend")
 }
+
+extensions.getByType(YarnRootExtension).yarnLockMismatchReport = YarnLockMismatchReport.NONE
