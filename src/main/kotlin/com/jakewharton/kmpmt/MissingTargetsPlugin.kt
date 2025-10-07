@@ -16,14 +16,14 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 // HEY! If you update the minimum-supported Gradle version check JVM and Kotlin API target in build.gradle.
-private val minimumGradleVersion = GradleVersion.version("8.0")
+private val minimumGradleVersion = GradleVersion.version("9.0")
 
 @Suppress("unused") // Instantiated reflectively by Gradle.
 public class MissingTargetsPlugin : Plugin<Project> {
 	override fun apply(project: Project) {
 		val gradleVersion = GradleVersion.current()
 		check(gradleVersion >= minimumGradleVersion) {
-			"Plugin requires Gradle ${minimumGradleVersion.version} or later. Found ${gradleVersion.version}"
+			"Plugin requires $minimumGradleVersion or later. Found $gradleVersion"
 		}
 
 		var gotKmp = false

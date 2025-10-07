@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
@@ -57,21 +58,18 @@ kotlin {
 	explicitApi()
 }
 
+// Ensure compatibility with old Gradle versions. Keep in sync with MissingTargetsPlugin.kt.
 tasks.withType(KotlinJvmCompile).configureEach {
-	compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
-
-	// "A JVM version between 8 and 23 is required to execute Gradle."
-	// https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
-	compilerOptions.jvmTarget = JvmTarget.JVM_1_8
-
-	// Ensure compatibility with old Gradle versions. Keep in sync with plugin minimum.
-	// https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-	compilerOptions.apiVersion.set(KotlinVersion.KOTLIN_1_8)
+	compilerOptions {
+		jvmTarget = JvmTarget.JVM_17
+		jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+		apiVersion = KotlinVersion.KOTLIN_2_2
+		languageVersion = KotlinVersion.KOTLIN_2_2
+	}
 }
-
 tasks.withType(JavaCompile).configureEach { task ->
-	task.sourceCompatibility = '1.8'
-	task.targetCompatibility = '1.8'
+	task.sourceCompatibility = '17'
+	task.targetCompatibility = '17'
 }
 
 tasks.named("test") {
