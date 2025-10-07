@@ -1,15 +1,15 @@
 pluginManagement {
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-  }
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
 }
 
 dependencyResolutionManagement {
-  repositories {
-    mavenCentral()
-    google()
-  }
+	repositories {
+		mavenCentral()
+		google()
+	}
 }
 
 rootProject.name = 'kmp-missing-targets'
