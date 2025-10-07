@@ -3,18 +3,18 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 buildscript {
-  dependencies {
-    classpath libs.kotlin.gradlePlugin
-    classpath libs.kotlin.serializationPlugin
-    classpath libs.dokkaPlugin
-    classpath libs.gradleMavenPublishPlugin
-    classpath libs.spotlessPlugin
-    classpath libs.android.gradlePlugin
-  }
-  repositories {
-    mavenCentral()
-    google()
-  }
+	dependencies {
+		classpath libs.kotlin.gradlePlugin
+		classpath libs.kotlin.serializationPlugin
+		classpath libs.dokkaPlugin
+		classpath libs.gradleMavenPublishPlugin
+		classpath libs.spotlessPlugin
+		classpath libs.android.gradlePlugin
+	}
+	repositories {
+		mavenCentral()
+		google()
+	}
 }
 
 apply plugin: 'org.jetbrains.kotlin.jvm'
@@ -26,96 +26,96 @@ apply plugin: 'com.diffplug.spotless'
 apply plugin: 'com.android.lint'
 
 gradlePlugin {
-  plugins {
-    kmpMissingTargets {
-      id = "com.jakewharton.kmp-missing-targets"
-      displayName = "KMP Missing Targets"
-      description = "Gradle plugin which identifies Kotlin multiplatform targets you should be supporting"
-      implementationClass = "com.jakewharton.kmpmt.MissingTargetsPlugin"
-    }
-  }
+	plugins {
+		kmpMissingTargets {
+			id = "com.jakewharton.kmp-missing-targets"
+			displayName = "KMP Missing Targets"
+			description = "Gradle plugin which identifies Kotlin multiplatform targets you should be supporting"
+			implementationClass = "com.jakewharton.kmpmt.MissingTargetsPlugin"
+		}
+	}
 }
 
 tasks.named("validatePlugins") {
-  enableStricterValidation = true
+	enableStricterValidation = true
 }
 
 dependencies {
-  compileOnly gradleApi()
-  implementation libs.kotlin.gradlePlugin
-  implementation libs.kotlinx.serialization
+	compileOnly gradleApi()
+	implementation libs.kotlin.gradlePlugin
+	implementation libs.kotlinx.serialization
 
-  testImplementation libs.junit
-  testImplementation libs.assertk
-  testImplementation libs.testParameterInjector
-  testImplementation gradleTestKit()
+	testImplementation libs.junit
+	testImplementation libs.assertk
+	testImplementation libs.testParameterInjector
+	testImplementation gradleTestKit()
 
-  lintChecks libs.androidx.gradlePluginLints
+	lintChecks libs.androidx.gradlePluginLints
 }
 
 kotlin {
-  explicitApi()
+	explicitApi()
 }
 
 tasks.withType(KotlinJvmCompile).configureEach {
-  compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
+	compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
 
-  // "A JVM version between 8 and 23 is required to execute Gradle."
-  // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
-  compilerOptions.jvmTarget = JvmTarget.JVM_1_8
+	// "A JVM version between 8 and 23 is required to execute Gradle."
+	// https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
+	compilerOptions.jvmTarget = JvmTarget.JVM_1_8
 
-  // Ensure compatibility with old Gradle versions. Keep in sync with plugin minimum.
-  // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-  compilerOptions.apiVersion.set(KotlinVersion.KOTLIN_1_8)
+	// Ensure compatibility with old Gradle versions. Keep in sync with plugin minimum.
+	// https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+	compilerOptions.apiVersion.set(KotlinVersion.KOTLIN_1_8)
 }
 
 tasks.withType(JavaCompile).configureEach { task ->
-  task.sourceCompatibility = '1.8'
-  task.targetCompatibility = '1.8'
+	task.sourceCompatibility = '1.8'
+	task.targetCompatibility = '1.8'
 }
 
 tasks.named("test") {
-  dependsOn(':publishAllPublicationsToTestingRepository')
-  systemProperty('kmpmtVersion', VERSION_NAME)
-  inputs.dir('src/test/fixtures')
+	dependsOn(':publishAllPublicationsToTestingRepository')
+	systemProperty('kmpmtVersion', VERSION_NAME)
+	inputs.dir('src/test/fixtures')
 
-  testLogging {
-    if (System.getenv("CI") == "true") {
-      events = ["failed", "skipped", "passed"]
-    }
-    exceptionFormat "full"
-  }
+	testLogging {
+		if (System.getenv("CI") == "true") {
+			events = ["failed", "skipped", "passed"]
+		}
+		exceptionFormat "full"
+	}
 
-  // Required to test configuration cache in tests when using withDebug()
-  // https://github.com/gradle/gradle/issues/22765#issuecomment-1339427241
-  jvmArgs(
-    "--add-opens",
-    "java.base/java.util=ALL-UNNAMED",
-    "--add-opens",
-    "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
-    "--add-opens",
-    "java.base/java.lang.invoke=ALL-UNNAMED",
-    "--add-opens",
-    "java.base/java.net=ALL-UNNAMED",
-  )
+	// Required to test configuration cache in tests when using withDebug()
+	// https://github.com/gradle/gradle/issues/22765#issuecomment-1339427241
+	jvmArgs(
+		"--add-opens",
+		"java.base/java.util=ALL-UNNAMED",
+		"--add-opens",
+		"java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+		"--add-opens",
+		"java.base/java.lang.invoke=ALL-UNNAMED",
+		"--add-opens",
+		"java.base/java.net=ALL-UNNAMED",
+	)
 }
 
 publishing {
-  repositories {
-    maven {
-      name = "testing"
-      url = "${rootProject.projectDir}/build/localMaven"
-    }
-  }
+	repositories {
+		maven {
+			name = "testing"
+			url = "${rootProject.projectDir}/build/localMaven"
+		}
+	}
 }
 
 spotless {
-  kotlin {
-    target('**/*.kt')
-    ktlint(libs.ktlint.get().version).editorConfigOverride([
-      'ktlint_standard_filename': 'disabled',
-      // Making something an expression body should be a choice around readability.
-      'ktlint_standard_function-expression-body': 'disabled',
-    ])
-  }
+	kotlin {
+		target('**/*.kt')
+		ktlint(libs.ktlint.get().version).editorConfigOverride([
+			'ktlint_standard_filename': 'disabled',
+			// Making something an expression body should be a choice around readability.
+			'ktlint_standard_function-expression-body': 'disabled',
+		])
+	}
 }
