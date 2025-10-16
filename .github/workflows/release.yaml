@@ -31,7 +31,7 @@ jobs:
         with:
           body: ${{ steps.release_notes.outputs.release_notes }}
 
-      - run: ./gradlew dokkaHtml
+      - run: ./gradlew dokkaGenerate
 
       - name: Deploy docs to website
         uses: JamesIves/github-pages-deploy-action@releases/v3
