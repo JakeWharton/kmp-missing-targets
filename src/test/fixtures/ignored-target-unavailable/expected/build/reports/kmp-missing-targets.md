@@ -41,7 +41,7 @@
 
 ## `org.jetbrains.kotlin:kotlin-stdlib`
 
-Current version: 2.2.20
+Current version: 2.2.21
 
 - `androidNativeArm32`
 - `androidNativeArm64`
