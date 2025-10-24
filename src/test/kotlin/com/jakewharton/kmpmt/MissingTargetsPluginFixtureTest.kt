@@ -27,7 +27,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(TestParameterInjector::class)
-class MissingTargetsPluginFixtureTest {
+class MissingTargetsPluginFixtureTest(
+	@param:TestParameter(LATEST_GRADLE_VERSION, MINIMUM_GRADLE_VERSION)
+	private val gradleVersion: String,
+) {
 	@Test
 	fun success(
 		@TestParameter(
@@ -95,6 +98,11 @@ class MissingTargetsPluginFixtureTest {
 			androidSdkFile.copyTo(File(fixtureDir, "local.properties"), overwrite = true)
 		}
 		return GradleRunner.create()
+			.apply {
+				if (gradleVersion != LATEST_GRADLE_VERSION) {
+					withGradleVersion(gradleVersion)
+				}
+			}
 			.withProjectDir(fixtureDir)
 			.withDebug(true) // Run in-process
 			.withArguments(
@@ -104,7 +112,8 @@ class MissingTargetsPluginFixtureTest {
 				"--continue",
 				"--configuration-cache",
 				"--no-build-cache",
-				versionProperty,
+				VERSION_PROPERTY,
+				VALIDATE_KOTLIN_METADATA,
 			)
 			.forwardOutput()
 	}
@@ -128,4 +137,6 @@ class MissingTargetsPluginFixtureTest {
 }
 
 private val fixturesDir = File("src/test/fixtures")
-private val versionProperty = "-PkmpmtVersion=${System.getProperty("kmpmtVersion")!!}"
+private const val VERSION_PROPERTY = "-PkmpmtVersion=$KMPMT_VERSION"
+private const val LATEST_GRADLE_VERSION = "latest"
+private const val VALIDATE_KOTLIN_METADATA = "-Porg.gradle.kotlin.dsl.skipMetadataVersionCheck=false"
