@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import compat.patrouille.Severity
 
 buildscript {
 	dependencies {
@@ -11,6 +10,8 @@ buildscript {
 		classpath libs.gradleMavenPublishPlugin
 		classpath libs.spotlessPlugin
 		classpath libs.android.gradlePlugin
+		classpath libs.buildConfigPlugin
+		classpath libs.compatPlugin
 	}
 	repositories {
 		mavenCentral()
@@ -25,6 +26,8 @@ apply plugin: 'com.vanniktech.maven.publish'
 apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'com.diffplug.spotless'
 apply plugin: 'com.android.lint'
+apply plugin: 'com.github.gmazzo.buildconfig'
+apply plugin: 'com.gradleup.compat.patrouille'
 
 gradlePlugin {
 	plugins {
@@ -58,23 +61,44 @@ kotlin {
 	explicitApi()
 }
 
-// Ensure compatibility with old Gradle versions. Keep in sync with MissingTargetsPlugin.kt.
-tasks.withType(KotlinJvmCompile).configureEach {
-	compilerOptions {
-		jvmTarget = JvmTarget.JVM_17
-		jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
-		apiVersion = KotlinVersion.KOTLIN_2_2
-		languageVersion = KotlinVersion.KOTLIN_2_2
+// HEY! If you update the minimum-supported Gradle version check to see if the Kotlin language version or
+// Java targets below can be bumped. See https://docs.gradle.org/current/userguide/compatibility.html.
+def minimumGradleVersion = '9.0'
+configurations.apiElements {
+	attributes {
+		attribute(
+			GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+			objects.named(GradlePluginApiVersion, minimumGradleVersion),
+		)
 	}
 }
-tasks.withType(JavaCompile).configureEach { task ->
-	task.sourceCompatibility = '17'
-	task.targetCompatibility = '17'
+
+compatPatrouille {
+	java(17)
+	kotlin('2.2.0')
+	checkApiDependencies(Severity.ERROR)
+	checkRuntimeDependencies(Severity.ERROR)
+}
+
+buildConfig {
+	sourceSets.getByName('test') {
+		useKotlinOutput {
+			packageName = 'com.jakewharton.kmpmt'
+			topLevelConstants = true
+		}
+		buildConfigField(String, 'MINIMUM_GRADLE_VERSION', minimumGradleVersion)
+		buildConfigField(String, "KMPMT_VERSION", VERSION_NAME)
+	}
+}
+
+tasks.withType(KotlinJvmCompile).configureEach {
+	compilerOptions {
+		jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+	}
 }
 
 tasks.named("test") {
 	dependsOn(':publishAllPublicationsToTestingRepository')
-	systemProperty('kmpmtVersion', VERSION_NAME)
 	inputs.dir('src/test/fixtures')
 
 	testLogging {
