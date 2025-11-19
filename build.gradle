@@ -134,10 +134,6 @@ publishing {
 spotless {
 	kotlin {
 		target('**/*.kt')
-		ktlint(libs.ktlint.get().version).editorConfigOverride([
-			'ktlint_standard_filename': 'disabled',
-			// Making something an expression body should be a choice around readability.
-			'ktlint_standard_function-expression-body': 'disabled',
-		])
+		ktfmt(libs.ktfmt.get().version).googleStyle()
 	}
 }
