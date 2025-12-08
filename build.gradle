@@ -45,7 +45,6 @@ tasks.named("validatePlugins") {
 }
 
 dependencies {
-	compileOnly gradleApi()
 	implementation libs.kotlin.gradlePlugin
 	implementation libs.kotlinx.serialization
 
