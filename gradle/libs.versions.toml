@@ -6,7 +6,7 @@ kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 kotlin-serializationPlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 
 dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:2.1.0"
-spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:8.1.0"
+spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:8.2.0"
 gradleMavenPublishPlugin = "com.vanniktech:gradle-maven-publish-plugin:0.36.0"
 buildConfigPlugin = "com.github.gmazzo.buildconfig:plugin:6.0.7"
 compatPlugin = "com.gradleup.tapmoc:tapmoc-gradle-plugin:0.3.2"
