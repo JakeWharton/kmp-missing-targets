@@ -75,8 +75,7 @@ configurations.apiElements {
 tapmoc {
 	java(17)
 	kotlin('2.2.0')
-	checkApiDependencies(Severity.ERROR)
-	checkRuntimeDependencies(Severity.ERROR)
+	checkDependencies(Severity.ERROR)
 }
 
 buildConfig {
