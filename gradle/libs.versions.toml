@@ -7,7 +7,7 @@ kotlin-serializationPlugin = { module = "org.jetbrains.kotlin:kotlin-serializati
 
 # HEY! If you update the minimum-supported Gradle version check to see if the Kotlin language version or
 # Java targets can be bumped. See https://docs.gradle.org/current/userguide/compatibility.html.
-gradle-minimum = "org.gradle.experimental:gradle-public-api:9.0.0"
+gradle-minimum = "org.gradle.experimental:gradle-public-api:9.8.1"
 
 dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:2.2.0"
 spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:8.10.4"
