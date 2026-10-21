@@ -1,6 +1,6 @@
+import com.gradleup.tapmoc.Severity
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import tapmoc.Severity
 
 buildscript {
 	dependencies {
