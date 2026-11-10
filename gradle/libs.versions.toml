@@ -10,7 +10,7 @@ kotlin-serializationPlugin = { module = "org.jetbrains.kotlin:kotlin-serializati
 gradle-minimum = "org.gradle.experimental:gradle-public-api:9.0.0"
 
 dokkaPlugin = "org.jetbrains.dokka:dokka-gradle-plugin:2.2.0"
-spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:8.10.4"
+spotlessPlugin = "com.diffplug.spotless:spotless-plugin-gradle:8.11.0"
 gradleMavenPublishPlugin = "com.vanniktech:gradle-maven-publish-plugin:0.37.0"
 buildConfigPlugin = "com.github.gmazzo.buildconfig:plugin:6.1.2"
 compatPlugin = "com.gradleup.tapmoc:tapmoc-gradle-plugin:0.5.0"
